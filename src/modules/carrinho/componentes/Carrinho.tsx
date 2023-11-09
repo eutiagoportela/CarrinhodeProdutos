@@ -11,6 +11,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { DatabaseService } from '../../../store/indexedDB/DatabaseProvider';
+import { useGlobalReducer } from '../../../store/reduces/globalReducer/useGlobalReducer';
 import { finalizaCarrinhoRoutesEnum } from '../../finalizarCarrinho/routes';
 
 const useStyles = makeStyles((theme) => ({
@@ -36,6 +37,7 @@ export const Carrinho = ({
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
+  const { setNotification, user } = useGlobalReducer();
 
   useEffect(() => {
     DatabaseService.deleteAllItems();
@@ -65,7 +67,13 @@ export const Carrinho = ({
     const allTodos = DatabaseService.add(allProdutosCarrinho);
     console.log(allTodos);
 
-    navigate(finalizaCarrinhoRoutesEnum.FINALIZARCARRINHO);
+    if (allProdutosCarrinho.length > 0) navigate(finalizaCarrinhoRoutesEnum.FINALIZARCARRINHO);
+    else
+      setNotification(
+        'Atenção!',
+        'error',
+        'Você precisa adicionar pelo menos um produto ao carrinho!',
+      );
   };
 
   const handleClick = (event) => {
